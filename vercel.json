@@ -1,0 +1,1 @@
+{ "crons": [{ "path": "/api/shipping/cron-poll", "schedule": "0 */3 * * *" }] }
