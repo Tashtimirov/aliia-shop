@@ -92,6 +92,17 @@ export class SupabaseStore implements Store {
     this.ok(await this.db.from('settings').upsert({ key, value }));
   }
 
+  async registerReferral(clientId: string, code: string) {
+    return this.ok(await this.db.rpc('loyalty_register_referral', { p_invitee: clientId, p_code: code })) === true;
+  }
+  async listLoyaltyNotices(limit = 50) {
+    return this.ok(await this.db.from('loyalty_notices').select('id, client_id, text')
+      .is('notified_at', null).order('id').limit(limit)) as { id: number; client_id: string; text: string }[];
+  }
+  async markLoyaltyNoticeSent(id: number) {
+    this.ok(await this.db.from('loyalty_notices').update({ notified_at: new Date().toISOString() }).eq('id', id));
+  }
+
   async findProduct(sourceId: string): Promise<CatalogProduct | null> {
     const p = this.ok(await this.db.from('products')
       .select('source_id, name_en, name_ru, source_url, variants:product_variants(id, color_code, color_name, size_code, size_label, price_thb, in_stock)')

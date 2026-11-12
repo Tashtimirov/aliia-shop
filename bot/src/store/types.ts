@@ -106,6 +106,12 @@ export interface Store {
   getSetting<T>(key: string): Promise<T | null>;
   setSetting(key: string, value: unknown): Promise<void>;
 
+  /** Бонусы (модуль loyalty, миграция 0005): привязать приглашение по коду. true — бонус подруге выдан. */
+  registerReferral(clientId: string, code: string): Promise<boolean>;
+  /** Неотправленные уведомления о бонусах (loyalty_notices.notified_at is null). */
+  listLoyaltyNotices(limit?: number): Promise<{ id: number; client_id: string; text: string }[]>;
+  markLoyaltyNoticeSent(id: number): Promise<void>;
+
   /** Товар из каталога по коду Uniqlo; null, если каталог ещё не выгружен или товара нет. */
   findProduct(sourceId: string): Promise<CatalogProduct | null>;
 }

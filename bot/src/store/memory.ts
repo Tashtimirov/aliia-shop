@@ -12,12 +12,14 @@ interface Data {
   events: OrderEvent[];
   settings: Record<string, unknown>;
   products: CatalogProduct[];
+  notices: { id: number; client_id: string; text: string; notified_at: string | null }[];
+  referrals: { client_id: string; code: string }[];
   seq: number;
 }
 
 /** Хранилище в памяти с сохранением в JSON-файл. Для локального запуска и тестов, без Supabase. */
 export class MemoryStore implements Store {
-  d: Data = { clients: [], orders: [], photos: [], events: [], settings: {}, products: [], seq: 0 };
+  d: Data = { clients: [], orders: [], photos: [], events: [], settings: {}, products: [], notices: [], referrals: [], seq: 0 };
   constructor(private file?: string) {
     if (file && existsSync(file)) this.d = { ...this.d, ...JSON.parse(readFileSync(file, 'utf8')) };
   }
@@ -97,6 +99,20 @@ export class MemoryStore implements Store {
 
   async getSetting<T>(key: string) { return (this.d.settings[key] as T) ?? null; }
   async setSetting(key: string, value: unknown) { this.d.settings[key] = value; this.save(); }
+
+  async registerReferral(client_id: string, code: string) {
+    if (this.d.referrals.some(r => r.client_id === client_id)) return false;
+    this.d.referrals.push({ client_id, code });
+    this.save();
+    return true;
+  }
+  async listLoyaltyNotices(limit = 50) {
+    return this.d.notices.filter(n => !n.notified_at).slice(0, limit).map(({ id, client_id, text }) => ({ id, client_id, text }));
+  }
+  async markLoyaltyNoticeSent(id: number) {
+    const n = this.d.notices.find(n => n.id === id);
+    if (n) { n.notified_at = new Date().toISOString(); this.save(); }
+  }
 
   async findProduct(sourceId: string) {
     const p = this.d.products.find(p => p.source_id === sourceId);

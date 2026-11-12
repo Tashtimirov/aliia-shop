@@ -205,3 +205,16 @@ test('кнопки напоминаний rem: уходят в модуль на
   assert.deepEqual(seen, ['rem:s:5']);
   assert.deepEqual(answers, ['Только для Алии', 'Отложено до завтра: тест']);
 });
+
+test('бонусы: приглашение по /start ref_ и доставка loyalty_notices', async () => {
+  const t = setup();
+  await t.msg(CLIENT, '/start ref_ALIIA7');
+  assert.equal(t.store.d.referrals[0].code, 'ALIIA7');
+  assert.ok(t.sentTo(CLIENT).some(c => /приглашению/.test(c.payload.text ?? '')));
+  const c = (await t.store.getClientByTelegram(CLIENT))!;
+  t.store.d.notices.push({ id: 1, client_id: c.id, text: 'Начислено 300 ₽ приветственных бонусов', notified_at: null });
+  await t.processEvents();
+  await t.processEvents();
+  assert.equal(t.sentTo(CLIENT).filter(x => /300 ₽ приветственных/.test(x.payload.text ?? '')).length, 1);
+  assert.ok(t.store.d.notices[0].notified_at);
+});

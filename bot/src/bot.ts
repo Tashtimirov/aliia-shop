@@ -148,7 +148,26 @@ export function createBot({ config, store, onReminderCallback }: BotDeps, botOpt
       cursor = e.id;
       await store.setSetting('bot_events_cursor', cursor);
     }
+    await sendLoyaltyNotices();
   }).catch(err => console.error('Ошибка обработки событий:', err)));
+
+  /** Уведомления бонусной программы: тексты готовит база, бот только доставляет. */
+  let loyaltyWarned = false;
+  async function sendLoyaltyNotices() {
+    let notices: Awaited<ReturnType<Store['listLoyaltyNotices']>>;
+    try { notices = await store.listLoyaltyNotices(); } catch (err) {
+      if (!loyaltyWarned) console.warn('Бонусы недоступны (нет миграции loyalty?):', (err as Error).message);
+      loyaltyWarned = true;
+      return;
+    }
+    for (const n of notices) {
+      const c = await store.getClient(n.client_id);
+      try {
+        if (c?.telegram_id) await bot.api.sendMessage(c.telegram_id, `🎁 ${esc(n.text)}`, HTML);
+      } catch (err) { console.error(`Бонусное уведомление ${n.id} не отправлено:`, err); }
+      await store.markLoyaltyNoticeSent(n.id);
+    }
+  }
 
   async function sendAdminCard(o: Order, header?: string) {
     const c = await store.getClient(o.client_id);
@@ -230,9 +249,14 @@ export function createBot({ config, store, onReminderCallback }: BotDeps, botOpt
 
   bot.command('start', async ctx => {
     ctx.session.step = { k: 'idle' };
-    await ensureClient(ctx);
-    // Параметр /start (например ref_КОД для бонусной программы) пока только логируем.
-    if (ctx.match) console.log(`start payload от ${ctx.from!.id}: ${ctx.match}`);
+    const client = await ensureClient(ctx);
+    // Ссылка-приглашение t.me/<бот>?start=ref_КОД: бонус подруге выдаёт база (loyalty_register_referral).
+    const ref = /^ref_([A-Za-z0-9-]{3,32})$/.exec(ctx.match ?? '');
+    if (ref) {
+      try {
+        if (await store.registerReferral(client.id, ref[1])) await ctx.reply('🎁 Вы пришли по приглашению, бонус на первый заказ уже ждёт вас!');
+      } catch (err) { console.error('Не удалось привязать приглашение:', err); }
+    }
     await ctx.reply(T.welcome(esc(ctx.from!.first_name), !!config.webAppUrl), { ...HTML, ...mainMenu() });
   });
   bot.command('id', ctx => ctx.reply(`Ваш Telegram id: <code>${ctx.from!.id}</code>\nЭтот чат: <code>${ctx.chat.id}</code>`, HTML));
