@@ -29,9 +29,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <Link href="/" className="text-lg font-semibold tracking-tight">
                 Aliia <span className="text-[var(--accent)]">Buyer</span>
               </Link>
-              <Link href="/cart" className="text-sm font-medium">
-                <CartBadge />
-              </Link>
+              <nav className="flex items-center gap-4 text-sm font-medium">
+                <Link href="/kabinet">Кабинет</Link>
+                <Link href="/cart">
+                  <CartBadge />
+                </Link>
+              </nav>
             </div>
           </header>
           <main className="mx-auto max-w-6xl px-4 py-4">{children}</main>
