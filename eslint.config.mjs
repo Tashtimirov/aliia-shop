@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Бот — отдельный пакет со своими проверками (bot/package.json)
+    "bot/**",
   ]),
 ]);
 
