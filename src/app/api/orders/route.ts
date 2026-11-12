@@ -13,7 +13,7 @@ export async function POST(req: Request) {
   if (body.initData && !tgUser) return NextResponse.json({ error: 'Не удалось проверить вход через Telegram, откройте магазин заново из бота' }, { status: 401 });
   try {
     const res = await createOrder(
-      { lines: Array.isArray(body.lines) ? body.lines : [], contact: body.contact ?? {}, source: tgUser ? 'miniapp' : 'site' },
+      { lines: Array.isArray(body.lines) ? body.lines : [], contact: body.contact ?? {}, source: tgUser ? 'miniapp' : 'site', bonus_rub: Number(body.bonus_rub) || 0 },
       tgUser,
     );
     return NextResponse.json({ ...res, label: res.demo ? 'демо' : orderNumber(res.number) });

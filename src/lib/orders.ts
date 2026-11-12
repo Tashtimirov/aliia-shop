@@ -2,12 +2,15 @@ import 'server-only';
 import { db } from './supabase';
 import { getPricing, getVariants, getProduct, mainImage } from './catalog';
 import { orderTotal } from './pricing';
+import { setOrderRedeem } from './loyalty/server';
 import type { TelegramUser } from './telegram';
 
 export type OrderInput = {
   lines: { variant_id: string; qty: number }[];
   contact: { name?: string; phone?: string; telegram_username?: string; city?: string; comment?: string };
   source: 'miniapp' | 'site';
+  /** Сколько бонусов клиент хочет списать; база урежет до потолка (50% комиссии) и спишет при подтверждении. */
+  bonus_rub?: number;
 };
 
 export class OrderError extends Error {}
@@ -32,7 +35,7 @@ export async function createOrder(input: OrderInput, tgUser: TelegramUser | null
   const client = db();
   if (!client) {
     // Без базы (демо): заказ не сохраняется
-    return { id: 'demo', number: 0, totalRub: total.totalRub, demo: true };
+    return { id: 'demo', number: 0, totalRub: total.totalRub, bonusRub: 0, demo: true };
   }
 
   // Клиент
@@ -103,8 +106,11 @@ export async function createOrder(input: OrderInput, tgUser: TelegramUser | null
   const { error: itemsErr } = await client.from('order_items').insert(items);
   if (itemsErr) throw new Error(`order_items: ${itemsErr.message}`);
 
+  // Бонусы может списать только клиент, вошедший через Telegram (иначе чужой баланс по username)
+  const bonusRub = tgUser && input.bonus_rub ? await setOrderRedeem(order.id, input.bonus_rub) : 0;
+
   await client.from('order_events').insert({ order_id: order.id, status: 'new', created_by: 'customer' });
-  return { id: order.id as string, number: order.number as number, totalRub: total.totalRub, demo: false };
+  return { id: order.id as string, number: order.number as number, totalRub: total.totalRub, bonusRub, demo: false };
 }
 
 export const orderNumber = (n: number) => `A-${String(n).padStart(4, '0')}`;
