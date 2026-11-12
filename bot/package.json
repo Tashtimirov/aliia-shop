@@ -1,0 +1,26 @@
+{
+  "name": "aliia-buyer-bot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Телеграм-бот для заказов Uniqlo у Aliia Buyer",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test test/*.test.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.119.0",
+    "dotenv": "^18.0.10",
+    "grammy": "^1.46.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
