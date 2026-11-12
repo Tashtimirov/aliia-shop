@@ -24,7 +24,7 @@
 
 ## Для разработчиков
 
-- База: `supabase/migrations/0002_loyalty.sql`. Деньги считает только база (триггеры на `orders` и `clients`).
+- База: `supabase/migrations/0005_loyalty.sql`. Деньги считает только база (триггеры на `orders` и `clients`).
 - Клиенту к оплате: `orders.total_rub - orders.bonus_spent_rub`.
 - Сводка: view `client_bonus_balance`; журнал `bonus_transactions` (только вставки).
 - CRM: `loyalty_reward_review(order_id, 'admin:<tg_id>')`, `loyalty_adjust(client_id, ±сумма, комментарий, 'admin:<tg_id>')`.

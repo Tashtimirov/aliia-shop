@@ -1,5 +1,5 @@
 // Правила «Клуба Алии» для показа в интерфейсе (подсказки «+N бонусов», прогресс уровня, потолок списания).
-// Считает деньги по-настоящему база (supabase/migrations/0002_loyalty.sql), здесь только те же формулы для превью.
+// Считает деньги по-настоящему база (supabase/migrations/0005_loyalty.sql), здесь только те же формулы для превью.
 // Без зависимостей от Next и базы, чтобы проверять node --test.
 
 export type LoyaltyTier = { code: string; name: string; min_spent_rub: number; cashback_pct: number };
