@@ -1,4 +1,4 @@
--- Виртуальная примерка по фото. Поверх 0001_core.sql и миграции личного кабинета (size_profiles.tryon_photo_path):
+-- Виртуальная примерка по фото. Поверх 0001_core.sql и 0003_size_profiles.sql (size_profiles.tryon_photo_path):
 -- применять после неё. Только добавления.
 
 create table tryon_results (

@@ -1,7 +1,7 @@
 # Виртуальная примерка по фото
 
 Модуль для общего приложения Next.js + Supabase (схема: `../shared/data-model.md`).
-Код: `src/lib/try-on/`, маршрут `src/app/api/try-on/route.ts`, миграция `supabase/migrations/0009_try_on.sql`.
+Код: `src/lib/try-on/`, маршрут `src/app/api/try-on/route.ts`, миграция `supabase/migrations/0006_try_on.sql`.
 
 ## Как работает
 
@@ -45,7 +45,7 @@ FASHN 0,075 $ за картинку, Kling 0,07 $. 10 примерок в ден
 
 ## Файлы
 
-- `supabase/migrations/0009_try_on.sql` — таблица `tryon_results`, RLS, настройки `tryon`, bucket `tryon-results`.
+- `supabase/migrations/0006_try_on.sql` — таблица `tryon_results`, RLS, настройки `tryon`, bucket `tryon-results`.
 - `providers.ts` — FASHN и Kling через fal.ai.
 - `tryon.ts` — логика: выбор фото, кэш, лимит, запасной провайдер, «примерить с этим».
 - `supabaseStore.ts` — база и Storage, удаление примерок профиля.
@@ -55,7 +55,7 @@ FASHN 0,075 $ за картинку, Kling 0,07 $. 10 примерок в ден
 
 1. Ключ fal.ai: зарегистрироваться на fal.ai, пополнить баланс (от 10 $), Dashboard → Keys. В переменные окружения `FAL_KEY`.
 2. Переменные `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `TELEGRAM_BOT_TOKEN` (уже нужны витрине).
-3. Применить `0009_try_on.sql` после миграции личного кабинета.
+3. Применить `0006_try_on.sql` после миграции личного кабинета.
 4. Проверить качество на 5–10 настоящих фото и товарах Uniqlo; если FASHN хуже на каких-то вещах, переключить `settings.tryon.provider` на `kling` без правки кода.
 
 ## Позже
